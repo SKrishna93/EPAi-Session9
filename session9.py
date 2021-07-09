@@ -109,7 +109,7 @@ def get_profiles_dict(num: int)-> "consolidate_profile":
     if not isinstance(num, int):
         raise TypeError("num should be an non-zero integer")
     if not num > 0:
-        raise TypeError("num should be an non-zero integer")
+        raise ValueError("num should be an non-zero integer")
     global length_of_profile_dict
     consolidate_profile_dict = {}
     for i in range(num):

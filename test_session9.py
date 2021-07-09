@@ -1,3 +1,4 @@
+#%%
 import pytest
 import random
 import session9
@@ -6,7 +7,7 @@ import inspect
 import re
 from collections import namedtuple
 from datetime import datetime
-from random import random, uniform
+from random import random, uniform, randint
 from faker import Faker
 from functools import reduce
 from session9 import get_profiles, get_largest_blood_group, get_mean_current_location, get_mean_age, get_max_age
@@ -16,7 +17,7 @@ from session9 import generate_company_data, compute_exchange_movement
 from session9 import length_of_profile, length_of_profile_dict, size_of_exchange
 
 fake = Faker()
-
+#%%
 README_CONTENT_CHECK_FOR = [
     'get_profiles',
     'get_largest_blood_group',
@@ -98,8 +99,8 @@ def test_session9_function_name_had_cap_letter():
 
 ############################## Assignment Validations ###########################
 
-profiles_tup = get_profiles(100)
-profiles_dict = get_profiles_dict(100)
+profiles_tup, _ = get_profiles(100)
+profiles_dict, _ = get_profiles_dict(100)
 
 # Fake profile with namedtuple
 
@@ -108,8 +109,8 @@ def test_session9_get_profiles_length():
     This method checks the length of the profile namedtuple generated
     failures_message: Mismatch in the length of the tuple expected
     """
-    profile = get_profiles(10)
-    assert len(profile) == 10, "Mismatch in the length of the tuple"
+    prof, _ = get_profiles(10)
+    assert len(prof) == 10, "Mismatch in the length of the tuple"
 
 def test_session9_get_profiles_num():
     """
@@ -131,7 +132,7 @@ def test_session9_get_profiles():
     failures_message1: Store your profiles in a tuple
     failures_message2: Data Loss! You missed a few details of the profiles   
     """
-    profiles = get_profiles(100)
+    profiles, _ = get_profiles(100)
     assert type(profiles) == tuple, "Store your profiles in a tuple!"
     assert set([len(profiles[x]) for x in range(100)]) == {13}, "Data Loss! You missed a few details of the profiles"
 
@@ -142,21 +143,21 @@ def test_session9_get_profiles_dict_length():
     This method checks the length of the profile dictionary generated
     failures_message: Mismatch in the length of the dict
     """
-    profile = get_profiles_dict(10)
+    profile, _ = get_profiles_dict(10)
     assert len(profile) == 10, "Mismatch in the length of the dict"
 
 def test_session9_get_profiles_dict_num():
     """
     This method checks the exception handling of the num argument
-    failures_message: num has to be a non-zero positive integer
+    failures_message: num should be an non-zero integer
     """
-    with pytest.raises(TypeError, match=r".*num has to be a non-zero positive integer*"):
-        get_profiles_dict('-21')
-    with pytest.raises(TypeError, match=r".*num has to be a non-zero positive integer*"):
+    with pytest.raises(TypeError, match=r".*num should be an non-zero integer*"):
+        get_profiles_dict('21')
+    with pytest.raises(TypeError, match=r".*num should be an non-zero integer*"):
         get_profiles_dict(1.5)
-    with pytest.raises(TypeError, match=r".*num has to be a non-zero positive integer*"):
+    with pytest.raises(TypeError, match=r".*num should be an non-zero integer*"):
         get_profiles_dict(5+8j)
-    with pytest.raises(ValueError, match=r".*num has to be a non-zero positive integer*"):
+    with pytest.raises(ValueError, match=r".*num should be an non-zero integer*"):
         get_profiles_dict(-21)
 
 def test_session9_get_profiles_dict():
@@ -165,13 +166,13 @@ def test_session9_get_profiles_dict():
     failures_message1: Store your profiles in a tuple
     failures_message2: Data Loss! You missed a few details of the profiles   
     """
-    profiles = get_profiles_dict(100)
+    profiles, _ = get_profiles_dict(100)
     assert type(profiles) == dict, "Store your profiles in a tuple!"
     assert set([len(profiles[x].keys()) for x in range(100)]) == {13}, "Data Loss! You missed a few details of the profiles"
 
 # Comparing the performance of namedtuple and dictionary
 
-def test_session9_time_it_get_max_age():
+def test_session9_get_max_age():
     """
     This method compares the time taken for computing the max age of the profiles stored in tuple and dict
     failures_message: Tuples are faster, backing the wrong horse here
@@ -180,7 +181,7 @@ def test_session9_time_it_get_max_age():
     *_, t_delta_dict = get_max_age_dict(profiles_dict)
     assert t_delta_tup <= t_delta_dict, "Tuples are faster, backing the wrong horse here"
 
-def test_session9_time_it_get_mean_age():
+def test_session9_get_mean_age():
     """
     This method compares the time taken for computing the mean age of the profiles stored in tuple and dict
     failures_message: Tuples are faster, backing the wrong horse here
@@ -189,7 +190,7 @@ def test_session9_time_it_get_mean_age():
     mean_age_dict, t_delta_dict = get_mean_age_dict(profiles_dict)
     assert t_delta_tup <= t_delta_dict, "Tuples are faster, backing the wrong horse here"
 
-def test_session9_time_it_get_largest_blood_group():
+def test_session9_get_largest_blood_group():
     """
     This method compares the time taken for computing the largest blood group in the profiles stored in tuple and dict
     failures_message: Tuples are faster, backing the wrong horse here
@@ -216,7 +217,7 @@ def test_session9_generate_company_data_num():
     failures_message: num should be a non-zero integer
     """
     with pytest.raises(TypeError, match=r".*num should be a non-zero integer*"):
-        generate_company_data('-21')
+        generate_company_data('21')
     with pytest.raises(TypeError, match=r".*num should be a non-zero integer*"):
         generate_company_data(1.5)
     with pytest.raises(TypeError, match=r".*num should be a non-zero integer*"):
@@ -259,7 +260,7 @@ def test_session9_compute_exchange_movement_arg():
     failures_message: Stock Exchange data is not a namedtuple
     '''
     with pytest.raises(TypeError, match=r".*Stock Exchange data is not a namedtuple*"):
-        compute_exchange_movement([random.randint() for x in range(10)])
+        compute_exchange_movement([x for x in range(10)])
 
 def test_session9_compute_exchange_movement_bullish():
     '''
@@ -287,7 +288,7 @@ def test_session9_compute_exchange_movement_bullish():
         BullishStockExchange += Exchange(company_data)
     world_index, indicator = compute_exchange_movement(BullishStockExchange)
 
-    assert world_index.open < world_index.close, "Its a Bullish index! Close higher"
+    assert world_index.exchange_open < world_index.exchange_close, "Its a Bullish index! Close higher"
     assert indicator == 'Bullish', "Its a Bullish index!!"
 
 def test_session9_compute_exchange_movement_bearish():
@@ -316,5 +317,7 @@ def test_session9_compute_exchange_movement_bearish():
         BearishStockExchange += Exchange(company_data)
     world_index, indicator = compute_exchange_movement(BearishStockExchange)
 
-    assert world_index.open > world_index.close, "Its a Bearish index! Open higher"
-    assert indicator == 'Bullish', "Its a Bearish index!!"
+    assert world_index.exchange_open > world_index.exchange_close, "Its a Bearish index! Open higher"
+    assert indicator == 'Bearish', "Its a Bearish index!!"
+
+#%%
