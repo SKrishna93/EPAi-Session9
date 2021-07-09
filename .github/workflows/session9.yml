@@ -14,7 +14,4 @@ jobs:
           python -m pip install pytest
           python -m pip install Faker
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Test with pytest
-        run: |
-          pytest -vv
       - uses: education/autograding@v1
